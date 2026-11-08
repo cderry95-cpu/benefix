@@ -43,6 +43,8 @@ Authentication is not important. How the data is stored is not important
   `{ items, page, pageSize, totalCount }` envelope.
 - `GET /api/employees/{employeeNo}` fetches a single employee; unknown
   numbers return a 404 ProblemDetails.
+- `DELETE /api/employees/{employeeNo}` deletes an employee permanently
+  (204 on success, 404 when the number is unknown, including twice-deleted).
 - In Development the API seeds 25 employees on startup when the table is
   empty (`EmployeeDatabaseSeeder`); production never seeds. The in-memory
   database resets per process, so dev restarts re-seed.

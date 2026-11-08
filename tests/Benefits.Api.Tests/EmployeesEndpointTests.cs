@@ -260,4 +260,66 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         Assert.Equal("Employee not found", problem!.Title);
         Assert.Contains(unknown, problem.Detail);
     }
+
+    [Fact]
+    public async Task Delete_ByEmployeeNo_RemovesEmployee()
+    {
+        var request = ValidRequest();
+        var postResponse = await _client.PostAsJsonAsync("/api/employees", request);
+        var posted = await ReadEmployeeAsync(postResponse);
+
+        var response = await _client.DeleteAsync($"/api/employees/{posted!.EmployeeNo}");
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        var getResponse = await _client.GetAsync($"/api/employees/{posted.EmployeeNo}");
+        Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Delete_ByEmployeeNo_DeletionPersists()
+    {
+        var before = (await _client.GetFromJsonAsync<EmployeePage>("/api/employees?pageSize=100", ApiJsonOptions))!.TotalCount;
+
+        var postResponse = await _client.PostAsJsonAsync("/api/employees", ValidRequest());
+        var posted = await ReadEmployeeAsync(postResponse);
+
+        await _client.DeleteAsync($"/api/employees/{posted!.EmployeeNo}");
+
+        var after = (await _client.GetFromJsonAsync<EmployeePage>("/api/employees?pageSize=100", ApiJsonOptions))!.TotalCount;
+        Assert.Equal(before, after);
+    }
+
+    [Fact]
+    public async Task Delete_ByEmployeeNo_AlreadyDeleted_ReturnsNotFound()
+    {
+        var postResponse = await _client.PostAsJsonAsync("/api/employees", ValidRequest());
+        var posted = await ReadEmployeeAsync(postResponse);
+
+        var first = await _client.DeleteAsync($"/api/employees/{posted!.EmployeeNo}");
+        var second = await _client.DeleteAsync($"/api/employees/{posted.EmployeeNo}");
+
+        Assert.Equal(HttpStatusCode.NoContent, first.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, second.StatusCode);
+    }
+
+    [Fact]
+    public async Task Delete_ByEmployeeNo_UnknownNumber_ReturnsNotFound()
+    {
+        var existing = (await _client.GetFromJsonAsync<EmployeePage>("/api/employees?pageSize=100", ApiJsonOptions))!
+            .Items.Select(e => e.EmployeeNo).ToHashSet();
+
+        string unknown;
+        do
+        {
+            unknown = $"EMP-{Random.Shared.Next(0, 1_000_000):D6}";
+        }
+        while (existing.Contains(unknown));
+
+        var response = await _client.DeleteAsync($"/api/employees/{unknown}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(ApiJsonOptions);
+        Assert.Equal("Employee not found", problem!.Title);
+    }
 }

@@ -9,6 +9,7 @@ public class EmployeesController(
     IAddStarterService addStarterService,
     IListEmployeesService listEmployeesService,
     IGetEmployeeService getEmployeeService,
+    IDeleteEmployeeService deleteEmployeeService,
     ILogger<EmployeesController> logger)
     : ControllerBase
 {
@@ -45,6 +46,27 @@ public class EmployeesController(
         if (result.IsSuccess)
         {
             return Ok(result.Employee);
+        }
+
+        return NotFound(new ProblemDetails
+        {
+            Title = "Employee not found",
+            Detail = $"No employee with employee number '{employeeNo.Trim()}' was found.",
+            Status = StatusCodes.Status404NotFound,
+        });
+    }
+
+    /// <summary>
+    /// Permanently deletes an employee by their employee number.
+    /// </summary>
+    [HttpDelete("{employeeNo}")]
+    public async Task<IActionResult> DeleteByEmployeeNo(string employeeNo, CancellationToken cancellationToken)
+    {
+        var result = await deleteEmployeeService.DeleteEmployeeAsync(employeeNo, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return NoContent();
         }
 
         return NotFound(new ProblemDetails
