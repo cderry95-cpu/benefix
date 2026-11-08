@@ -41,6 +41,8 @@ Authentication is not important. How the data is stored is not important
 - `GET /api/employees` lists employees alphabetically by surname with offset
   pagination (`page` default 1, `pageSize` default 10, max 100) and an
   `{ items, page, pageSize, totalCount }` envelope.
+- `GET /api/employees/{employeeNo}` fetches a single employee; unknown
+  numbers return a 404 ProblemDetails.
 - In Development the API seeds 25 employees on startup when the table is
   empty (`EmployeeDatabaseSeeder`); production never seeds. The in-memory
   database resets per process, so dev restarts re-seed.

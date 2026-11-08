@@ -59,6 +59,18 @@ public sealed class EmployeeRepository(EmployeeDatabase database) : IEmployeeRep
         return (items, totalCount);
     }
 
+    public async Task<Employee?> GetByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default)
+    {
+        return await database.Connection.QuerySingleOrDefaultAsync<Employee>(new CommandDefinition(
+            """
+            SELECT EmployeeNo, Title, Firstname, Surname, Dob, Gender, Email, Address
+            FROM Employees
+            WHERE EmployeeNo = @EmployeeNo
+            """,
+            new { EmployeeNo = employeeNo },
+            cancellationToken: cancellationToken));
+    }
+
     public async Task<bool> EmployeeNoExistsAsync(string employeeNo, CancellationToken cancellationToken = default)
     {
         var existing = await database.Connection.ExecuteScalarAsync<object?>(new CommandDefinition(

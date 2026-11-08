@@ -217,4 +217,47 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
                 string.CompareOrdinal(previous.Item1 ?? string.Empty, items[i].Surname ?? string.Empty) <= 0);
         }
     }
+
+    [Fact]
+    public async Task Get_ByEmployeeNo_ReturnsSavedEmployee()
+    {
+        var request = ValidRequest();
+        var postResponse = await _client.PostAsJsonAsync("/api/employees", request);
+        var posted = await ReadEmployeeAsync(postResponse);
+
+        var response = await _client.GetAsync($"/api/employees/{posted!.EmployeeNo}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var employee = await ReadEmployeeAsync(response);
+        Assert.NotNull(employee);
+        Assert.Equal(posted.EmployeeNo, employee!.EmployeeNo);
+        Assert.Equal(request.Email, employee.Email);
+        Assert.Equal("Freddie", employee.Firstname);
+        Assert.Equal(request.Dob, employee.Dob);
+        Assert.Equal(Gender.PreferNotToSay, employee.Gender);
+    }
+
+    [Fact]
+    public async Task Get_ByEmployeeNo_UnknownNumber_ReturnsNotFound()
+    {
+        // Pick a number guaranteed absent by checking the known population:
+        // fetch everything (max page size 100 covers this suite's row count)
+        // and try random candidates until one is missing.
+        var existing = (await _client.GetFromJsonAsync<EmployeePage>("/api/employees?pageSize=100", ApiJsonOptions))!
+            .Items.Select(e => e.EmployeeNo).ToHashSet();
+
+        string unknown;
+        do
+        {
+            unknown = $"EMP-{Random.Shared.Next(0, 1_000_000):D6}";
+        }
+        while (existing.Contains(unknown));
+
+        var response = await _client.GetAsync($"/api/employees/{unknown}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(ApiJsonOptions);
+        Assert.Equal("Employee not found", problem!.Title);
+        Assert.Contains(unknown, problem.Detail);
+    }
 }
