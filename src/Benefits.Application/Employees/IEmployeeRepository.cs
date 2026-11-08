@@ -34,4 +34,10 @@ public interface IEmployeeRepository
 
     /// <summary>Returns the employee with this employee number, or null when absent.</summary>
     Task<Employee?> GetByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes the employee with this employee number; returns false if it
+    /// does not exist.
+    /// </summary>
+    Task<bool> DeleteByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default);
 }

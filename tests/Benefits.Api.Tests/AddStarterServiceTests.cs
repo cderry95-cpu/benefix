@@ -221,6 +221,21 @@ public sealed class FakeEmployeeRepository : IEmployeeRepository
         return Task.FromResult<Employee?>(employee);
     }
 
+    public Task<bool> DeleteByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default)
+    {
+        var employee = Saved.FirstOrDefault(e => e.EmployeeNo == employeeNo);
+
+        if (employee is null)
+        {
+            return Task.FromResult(false);
+        }
+
+        Saved.Remove(employee);
+        _emails.Remove(employee.Email);
+        _employeeNos.Remove(employee.EmployeeNo);
+        return Task.FromResult(true);
+    }
+
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_emails.Contains(email));

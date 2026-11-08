@@ -71,6 +71,16 @@ public sealed class EmployeeRepository(EmployeeDatabase database) : IEmployeeRep
             cancellationToken: cancellationToken));
     }
 
+    public async Task<bool> DeleteByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default)
+    {
+        var rows = await database.Connection.ExecuteAsync(new CommandDefinition(
+            "DELETE FROM Employees WHERE EmployeeNo = @EmployeeNo",
+            new { EmployeeNo = employeeNo },
+            cancellationToken: cancellationToken));
+
+        return rows is 1;
+    }
+
     public async Task<bool> EmployeeNoExistsAsync(string employeeNo, CancellationToken cancellationToken = default)
     {
         var existing = await database.Connection.ExecuteScalarAsync<object?>(new CommandDefinition(
