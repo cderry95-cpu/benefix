@@ -29,6 +29,21 @@ dotnet run --project src/Benefits.Api
 - API: `https://localhost:xxxx` / `http://localhost:5182`
 - Swagger UI: `/swagger` (development only)
 
+### Docker
+
+```bash
+docker build -t benefix-api .
+docker run -p 8080:8080 benefix-api
+```
+
+- API listens on `http://localhost:8080`
+- Multi-stage build (SDK stage compiles, trimmed ASP.NET runtime stage runs it) running as a non-root user
+- Behind a corporate TLS-intercepting proxy (untrusted NuGet certificates in the build stage), pass a root CA PEM as a build secret:
+
+```bash
+docker build -t benefix-api --secret id=corp-root,src=<path-to-root-ca.pem> .
+```
+
 ## Endpoints
 
 - `POST /api/employees` — adds a new starter. See `src/Benefits.Api/Benefits.Api.http` for a sample request body.
