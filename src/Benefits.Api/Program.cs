@@ -1,14 +1,28 @@
-using Benefits.Application;
+using Benefits.Application.Employees;
+using Benefits.Api.Json;
+using Benefits.Infrastructure;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter(namingPolicy: new TitleCaseEnumNamingPolicy()));
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IGreetingService, GreetingService>();
+builder.Services.AddScoped<IAddStarterService, AddStarterService>();
+builder.Services.AddInfrastructure();
 
 var app = builder.Build();
+
+// Resolve the in-memory SQLite database singleton so its schema is created
+// before the server starts accepting requests.
+app.Services.GetRequiredService<EmployeeDatabase>();
 
 if (app.Environment.IsDevelopment())
 {

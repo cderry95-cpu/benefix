@@ -1,5 +1,16 @@
 @Benefits.Api_HostAddress = http://localhost:5182
 
-GET {{Benefits.Api_HostAddress}}/api/helloworld
+POST {{Benefits.Api_HostAddress}}/api/employees
+Content-Type: application/json
+
+{
+  "title": "Mr",
+  "firstname": "Jimi",
+  "surname": "Hendrix",
+  "dob": "1988-04-13",
+  "gender": "Male",
+  "email": "jimi.hendrix@example.com",
+  "address": "12 Electric Ladyland, London"
+}
 
 ###

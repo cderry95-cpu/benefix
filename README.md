@@ -9,7 +9,7 @@ Clean Architecture, with the following layers:
 | Project                          | Responsibility                                                                                    |
 | -------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `src/Benefits.Domain`            | Domain entities and rules. No dependencies on other layers.                                       |
-| `src/Benefits.Application`       | Use cases and application services (e.g. `IGreetingService`). Depends only on Domain.             |
+| `src/Benefits.Application`       | Use cases and application services (e.g. `IAddStarterService`). Depends only on Domain.          |
 | `src/Benefits.Infrastructure`    | Persistence and external concerns. Depends on Application.                                        |
 | `src/Benefits.Api`               | ASP.NET Core REST API exposing Application use cases. Swagger/OpenAPI enabled in development.      |
 | `tests/Benefits.Api.Tests`       | Unit and integration tests (xUnit, in-memory `WebApplicationFactory`).                             |
@@ -27,9 +27,23 @@ dotnet run --project src/Benefits.Api
 - API: `https://localhost:xxxx` / `http://localhost:5182`
 - Swagger UI: `/swagger` (development only)
 
-## Hello World endpoints
+## Endpoints
 
-- `GET /api/helloworld` -> `"Hello, World!"`
+- `POST /api/employees` — adds a new starter. See `src/Benefits.Api/Benefits.Api.http` for a sample request body.
+
+| Case                          | Status | Response                                   |
+| ----------------------------- | ------ | ------------------------------------------ |
+| Starter saved                 | 200    | Saved employee (with GUID `employeeNo`)     |
+| Missing `email`/`firstname`/`surname` | 400 | ProblemDetails listing the missing fields |
+| Malformed `email`             | 400    | ProblemDetails                              |
+| `dob` in the future           | 400    | ProblemDetails                              |
+| Unknown `gender` value        | 400    | ProblemDetails listing allowed values: `Male, Female, Other, Prefer not to say` |
+| `email` already registered    | 409    | ProblemDetails                              |
+
+Required fields: `email`, `firstname`, `surname`. All other fields are optional
+(`title`, `dob`, `gender`, `address`). `dob` must not be in the future.
+`gender` accepts the enum value names (case-insensitive) or their spaced
+forms, e.g. `"Male"`, `"prefer not to say"`.
 
 ## Running tests
 
@@ -52,7 +66,8 @@ Secret scanning works best with [gitleaks](https://gitleaks.io) installed
 
 ## Feature implementation
 
-The target user story — adding a new starter (`EmployeeNo`, `Title`, `Firstname`,
-`Surname`, `DOB`, `Gender`, `Email`, `Address` with generated unique `EmployeeNo`
-and unique `Email`) — is not yet implemented; this repo currently contains the
-scaffold and a hello-world endpoint only.
+Implements the user story: as an HR Administrator, add a new starter
+(`EmployeeNo`, `Title`, `Firstname`, `Surname`, `DOB`, `Gender`, `Email`,
+`Address`). `EmployeeNo` is a generated GUID (not sequential) and `Email`
+is unique; uniqueness is enforced by a unique index in the in-memory SQLite
+database and checked explicitly by the Application layer.
