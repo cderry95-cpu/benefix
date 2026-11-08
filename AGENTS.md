@@ -104,6 +104,10 @@ git config core.hooksPath .githooks
 If a check fails, fix the issue and amend or re-stage; do not use `--no-verify`
 unless the reviewer has agreed there is a legitimate reason.
 
+CI (`.github/workflows/ci.yml`) runs the same gates on every PR targeting
+`main`: restore/build/format-verify plus `dotnet test`, and a gitleaks secret
+scan. Both checks must pass before merge.
+
 ## Development commands
 
 ```bash

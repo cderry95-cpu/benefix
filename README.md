@@ -1,5 +1,7 @@
 # Benefits API
 
+[![CI](https://github.com/cderry95-cpu/benefix/actions/workflows/ci.yml/badge.svg)](https://github.com/cderry95-cpu/benefix/actions/workflows/ci.yml)
+
 A thin RESTful API for the Benefits Engineering take-home test, built with .NET 10.
 
 ## Architecture
@@ -50,6 +52,13 @@ forms, e.g. `"Male"`, `"prefer not to say"`.
 ```bash
 dotnet test
 ```
+
+## CI
+
+`.github/workflows/ci.yml` runs on every push/PR targeting `main`:
+
+1. **Build & test** — restore, build, `dotnet format --verify-no-changes`, `dotnet test`; the "Build & test" check must pass before a PR can merge.
+2. **Secret scan** — gitleaks over the full git history ("Secret scan" check).
 
 ## Git hooks
 
