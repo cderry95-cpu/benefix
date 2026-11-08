@@ -4,6 +4,10 @@
 
 A thin RESTful API for the Benefits Engineering take-home test, built with .NET 10.
 
+**For reviewers:** [`REVIEWERS.md`](REVIEWERS.md) documents the reasoning
+behind the design choices, what we deliberately deferred, and the questions
+we would have asked stakeholders.
+
 ## Architecture
 
 Clean Architecture, with the following layers:
