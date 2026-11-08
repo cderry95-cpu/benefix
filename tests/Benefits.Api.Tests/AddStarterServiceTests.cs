@@ -46,7 +46,7 @@ public class AddStarterServiceTests
 
         var result = await service.AddStarterAsync(ValidRequest());
 
-        Assert.Matches(@"^EMP-\d{6}$", result.Employee!.EmployeeNo);
+        Assert.Matches(@"^\d{6}$", result.Employee!.EmployeeNo);
     }
 
     [Fact]

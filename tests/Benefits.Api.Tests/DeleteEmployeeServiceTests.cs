@@ -45,7 +45,7 @@ public class DeleteEmployeeServiceTests
     {
         var service = CreateService();
 
-        var result = await service.DeleteEmployeeAsync("EMP-000001");
+        var result = await service.DeleteEmployeeAsync("000001");
 
         Assert.False(result.IsSuccess);
         Assert.Equal(DeleteEmployeeError.NotFound, result.Error);

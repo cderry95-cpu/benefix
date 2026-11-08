@@ -49,7 +49,7 @@ public class GetEmployeeServiceTests
     {
         var service = CreateService();
 
-        var result = await service.GetEmployeeAsync("EMP-000001");
+        var result = await service.GetEmployeeAsync("000001");
 
         Assert.False(result.IsSuccess);
         Assert.Equal(GetEmployeeError.NotFound, result.Error);

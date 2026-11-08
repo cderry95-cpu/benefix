@@ -12,7 +12,7 @@ public class EmployeeNoGeneratorTests
 
         var employeeNo = generator.Generate();
 
-        Assert.Matches(@"^EMP-\d{6}$", employeeNo);
+        Assert.Matches(@"^\d{6}$", employeeNo);
     }
 
     [Fact]
