@@ -261,6 +261,145 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         Assert.Contains(unknown, problem.Detail);
     }
 
+    /// <summary>
+    /// Posts a new starter and returns its (employee number, request) pair so
+    /// update/delete tests have a known subject.
+    /// </summary>
+    private async Task<(EmployeeDto Posted, AddStarterRequest Request)> PostOneAsync(string? email = null)
+    {
+        var request = ValidRequest() with { Email = email ?? $"{Guid.NewGuid():N}@example.test" };
+        var postResponse = await _client.PostAsJsonAsync("/api/employees", request);
+        var posted = await ReadEmployeeAsync(postResponse);
+        Assert.NotNull(posted);
+        return (posted!, request);
+    }
+
+    [Fact]
+    public async Task Put_ByEmployeeNo_UpdatesFieldsKeepsEmployeeNo()
+    {
+        var (posted, _) = await PostOneAsync();
+
+        var changedRequest = new
+        {
+            title = "Mrs",
+            firstname = "Farrokh",
+            surname = "Bulsara",
+            dob = "1989-01-01",
+            gender = "Prefer not to say",
+            email = $"updated.{Guid.NewGuid():N}@example.test",
+            address = "9 New Road, London",
+        };
+        var response = await _client.PutAsJsonAsync($"/api/employees/{posted.EmployeeNo}", changedRequest);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var employee = await ReadEmployeeAsync(response);
+        Assert.NotNull(employee);
+        Assert.Equal(posted.EmployeeNo, employee!.EmployeeNo);
+        Assert.Equal(changedRequest.firstname, employee.Firstname);
+        Assert.Equal(changedRequest.surname, employee.Surname);
+        Assert.Equal(changedRequest.email, employee.Email);
+        Assert.Equal(DateOnly.Parse(changedRequest.dob), employee.Dob);
+        Assert.Equal(Gender.PreferNotToSay, employee.Gender);
+    }
+
+    [Fact]
+    public async Task Put_ByEmployeeNo_PersistsChange()
+    {
+        var (posted, _) = await PostOneAsync();
+
+        var changedEmail = $"persistent.{Guid.NewGuid():N}@example.test";
+        await _client.PutAsJsonAsync($"/api/employees/{posted.EmployeeNo}", new
+        {
+            firstname = "Persist",
+            surname = "Test",
+            email = changedEmail,
+        });
+
+        var getResponse = await _client.GetAsync($"/api/employees/{posted.EmployeeNo}");
+        var persisted = await ReadEmployeeAsync(getResponse);
+        Assert.Equal(changedEmail, persisted!.Email);
+    }
+
+    [Fact]
+    public async Task Put_ByEmployeeNo_UnknownNumber_ReturnsNotFound()
+    {
+        var existing = (await _client.GetFromJsonAsync<EmployeePage>("/api/employees?pageSize=100", ApiJsonOptions))!
+            .Items.Select(e => e.EmployeeNo).ToHashSet();
+
+        string unknown;
+        do
+        {
+            unknown = $"EMP-{Random.Shared.Next(0, 1_000_000):D6}";
+        }
+        while (existing.Contains(unknown));
+
+        var response = await _client.PutAsJsonAsync($"/api/employees/{unknown}", new
+        {
+            firstname = "Ghost",
+            surname = "Starter",
+            email = $"{Guid.NewGuid():N}@example.test",
+        });
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(ApiJsonOptions);
+        Assert.Equal("Employee not found", problem!.Title);
+    }
+
+    [Fact]
+    public async Task Put_ByEmployeeNo_DuplicateEmail_ReturnsConflict()
+    {
+        var (first, _) = await PostOneAsync();
+        var (second, _) = await PostOneAsync();
+
+        var response = await _client.PutAsJsonAsync($"/api/employees/{first.EmployeeNo}", new
+        {
+            firstname = "Clash",
+            surname = "Starter",
+            email = second.Email,
+        });
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(ApiJsonOptions);
+        Assert.Equal("Duplicate email", problem!.Title);
+    }
+
+    [Fact]
+    public async Task Put_ByEmployeeNo_MissingRequiredFields_ReturnsBadRequest()
+    {
+        var (posted, _) = await PostOneAsync();
+
+        var response = await _client.PutAsJsonAsync($"/api/employees/{posted.EmployeeNo}", new
+        {
+            firstname = "NoSurname",
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(ApiJsonOptions);
+        Assert.Equal("Missing required fields", problem!.Title);
+        Assert.Contains("Surname", problem.Detail);
+    }
+
+    [Fact]
+    public async Task Put_ByEmployeeNo_EmployeeNoNotInBody_CannotChangeNumber()
+    {
+        // The request DTO has no employee number property; update only ever
+        // targets the number in the route. This test pins the shape contract:
+        // a body containing an employeeNo field is ignored by the DTO.
+        var (posted, _) = await PostOneAsync();
+
+        var response = await _client.PutAsJsonAsync($"/api/employees/{posted.EmployeeNo}", new
+        {
+            employeeNo = "EMP-999999",
+            firstname = "Shape",
+            surname = "Test",
+            email = $"{Guid.NewGuid():N}@example.test",
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var employee = await ReadEmployeeAsync(response);
+        Assert.Equal(posted.EmployeeNo, employee!.EmployeeNo);
+    }
+
     [Fact]
     public async Task Delete_ByEmployeeNo_RemovesEmployee()
     {

@@ -35,7 +35,7 @@ public sealed class ListEmployeesService(IEmployeeRepository repository, ILogger
 
         var (employees, totalCount) = await repository.ListAsync(page, pageSize, cancellationToken);
 
-        var items = employees.Select(Map).ToList();
+        var items = employees.Select(EmployeeDto.FromDomain).ToList();
 
         logger.LogInformation(
             "Listed {Count} of {TotalCount} employees (page={Page}, pageSize={PageSize}).",
@@ -43,16 +43,4 @@ public sealed class ListEmployeesService(IEmployeeRepository repository, ILogger
 
         return ListEmployeesResult.Success(new EmployeePage(items, page, pageSize, totalCount));
     }
-
-    private static EmployeeDto Map(Domain.Employee employee) => new()
-    {
-        EmployeeNo = employee.EmployeeNo,
-        Email = employee.Email,
-        Title = employee.Title,
-        Firstname = employee.Firstname,
-        Surname = employee.Surname,
-        Dob = employee.Dob,
-        Gender = employee.Gender,
-        Address = employee.Address,
-    };
 }

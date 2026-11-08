@@ -35,18 +35,6 @@ public sealed class GetEmployeeService(IEmployeeRepository repository, ILogger<G
             "Employee found. EmployeeNo={EmployeeNo}, Email={Email}, Name={Firstname} {Surname}.",
             employee.EmployeeNo, employee.Email, employee.Firstname, employee.Surname);
 
-        return GetEmployeeResult.Success(ToDto(employee));
+        return GetEmployeeResult.Success(EmployeeDto.FromDomain(employee));
     }
-
-    private static EmployeeDto ToDto(Domain.Employee employee) => new()
-    {
-        EmployeeNo = employee.EmployeeNo,
-        Email = employee.Email,
-        Title = employee.Title,
-        Firstname = employee.Firstname,
-        Surname = employee.Surname,
-        Dob = employee.Dob,
-        Gender = employee.Gender,
-        Address = employee.Address,
-    };
 }

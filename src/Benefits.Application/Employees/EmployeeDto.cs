@@ -15,4 +15,18 @@ public sealed record EmployeeDto
     public DateOnly? Dob { get; init; }
     public Gender? Gender { get; init; }
     public string? Address { get; init; }
+
+    /// <summary>Maps the domain entity to its API representation; every
+    /// service that returns an employee uses this one mapping.</summary>
+    public static EmployeeDto FromDomain(Domain.Employee employee) => new()
+    {
+        EmployeeNo = employee.EmployeeNo,
+        Email = employee.Email,
+        Title = employee.Title,
+        Firstname = employee.Firstname,
+        Surname = employee.Surname,
+        Dob = employee.Dob,
+        Gender = employee.Gender,
+        Address = employee.Address,
+    };
 }

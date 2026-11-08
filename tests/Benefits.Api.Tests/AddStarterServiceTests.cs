@@ -236,9 +236,32 @@ public sealed class FakeEmployeeRepository : IEmployeeRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
+    public Task<Employee?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(_emails.Contains(email));
+        var employee = Saved.FirstOrDefault(e => e.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult<Employee?>(employee);
+    }
+
+    public Task<bool> UpdateAsync(Employee employee, CancellationToken cancellationToken = default)
+    {
+        var index = Saved.FindIndex(e => e.EmployeeNo == employee.EmployeeNo);
+
+        if (index < 0)
+        {
+            return Task.FromResult(false);
+        }
+
+        var duplicate = Saved.Any(e =>
+            e.Email.Equals(employee.Email, StringComparison.OrdinalIgnoreCase) &&
+            e.EmployeeNo != employee.EmployeeNo);
+
+        if (duplicate)
+        {
+            return Task.FromResult(false);
+        }
+
+        Saved[index] = employee;
+        return Task.FromResult(true);
     }
 
     public Task<(IReadOnlyList<Employee> Items, int TotalCount)> ListAsync(

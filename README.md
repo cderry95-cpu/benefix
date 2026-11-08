@@ -55,10 +55,17 @@ docker build -t benefix-api --secret id=corp-root,src=<path-to-root-ca.pem> .
   number; a 404 ProblemDetails is returned when no employee matches.
 - `DELETE /api/employees/{employeeNo}` — permanently deletes an employee;
   204 on success, 404 when the number is unknown (including already deleted).
+- `PUT /api/employees/{employeeNo}` — updates an employee's details (full
+  replace: omitted nullable fields are cleared). The employee number can
+  **not** be changed; the same validation as add applies (required
+  email/firstname/surname, valid email, allowed gender values, no future DOB),
+  and the updated employee is returned.
 - `POST /api/employees` — adds a new starter. See `src/Benefits.Api/Benefits.Api.http` for a sample request body.
 
 | Case                          | Status | Response                                   |
 | ----------------------------- | ------ | ------------------------------------------ |
+| Employee updated              | 200    | Updated employee object (same employee number) |
+| Update targets unknown number | 404    | ProblemDetails ("Employee not found")      |
 | Employee deleted              | 204    | No content                                 |
 | Unknown employee number (GET/DELETE) | 404 | ProblemDetails ("Employee not found") |
 | Starter saved                 | 200    | Saved employee (with `EMP-######` number)   |

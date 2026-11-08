@@ -10,6 +10,7 @@ public class EmployeesController(
     IListEmployeesService listEmployeesService,
     IGetEmployeeService getEmployeeService,
     IDeleteEmployeeService deleteEmployeeService,
+    IUpdateEmployeeService updateEmployeeService,
     ILogger<EmployeesController> logger)
     : ControllerBase
 {
@@ -75,6 +76,73 @@ public class EmployeesController(
             Detail = $"No employee with employee number '{employeeNo.Trim()}' was found.",
             Status = StatusCodes.Status404NotFound,
         });
+    }
+
+    /// <summary>
+    /// Updates an existing employee's details by their employee number.
+    /// The employee number cannot be changed.
+    /// </summary>
+    [HttpPut("{employeeNo}")]
+    public async Task<IActionResult> Update(string employeeNo, UpdateEmployeeRequest? request, CancellationToken cancellationToken)
+    {
+        if (request is null)
+        {
+            logger.LogWarning("Employee update rejected by the binding layer: a JSON request body is required.");
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid request",
+                Detail = "A JSON request body is required.",
+                Status = StatusCodes.Status400BadRequest,
+            });
+        }
+
+        var result = await updateEmployeeService.UpdateEmployeeAsync(employeeNo, request, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Employee);
+        }
+
+        return result.Error switch
+        {
+            UpdateEmployeeError.NotFound => NotFound(new ProblemDetails
+            {
+                Title = "Employee not found",
+                Detail = $"No employee with employee number '{employeeNo.Trim()}' was found.",
+                Status = StatusCodes.Status404NotFound,
+            }),
+            UpdateEmployeeError.DuplicateEmail => Conflict(new ProblemDetails
+            {
+                Title = "Duplicate email",
+                Detail = result.Message,
+                Status = StatusCodes.Status409Conflict,
+            }),
+            UpdateEmployeeError.FutureDateOfBirth => BadRequest(new ProblemDetails
+            {
+                Title = "Invalid date of birth",
+                Detail = result.Message,
+                Status = StatusCodes.Status400BadRequest,
+            }),
+            UpdateEmployeeError.InvalidGender => BadRequest(new ProblemDetails
+            {
+                Title = "Invalid gender",
+                Detail = result.Message,
+                Status = StatusCodes.Status400BadRequest,
+            }),
+            UpdateEmployeeError.InvalidEmail => BadRequest(new ProblemDetails
+            {
+                Title = "Invalid email",
+                Detail = result.Message,
+                Status = StatusCodes.Status400BadRequest,
+            }),
+            UpdateEmployeeError.MissingRequiredFields => BadRequest(new ProblemDetails
+            {
+                Title = "Missing required fields",
+                Detail = result.Message,
+                Status = StatusCodes.Status400BadRequest,
+            }),
+            _ => Problem("An unexpected error occurred while updating the employee."),
+        };
     }
 
     /// <summary>Adds a new starter and returns the saved employee.</summary>

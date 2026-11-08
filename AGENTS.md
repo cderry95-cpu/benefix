@@ -45,6 +45,11 @@ Authentication is not important. How the data is stored is not important
   numbers return a 404 ProblemDetails.
 - `DELETE /api/employees/{employeeNo}` deletes an employee permanently
   (204 on success, 404 when the number is unknown, including twice-deleted).
+- `PUT /api/employees/{employeeNo}` updates all editable fields (full
+  replace) and returns the updated employee. The employee number is the
+  identity of the resource: it lives in the route only and cannot be changed
+  by the request body. Validation rules match add-starter; email uniqueness
+  applies but never to the employee's own number.
 - In Development the API seeds 25 employees on startup when the table is
   empty (`EmployeeDatabaseSeeder`); production never seeds. The in-memory
   database resets per process, so dev restarts re-seed.
