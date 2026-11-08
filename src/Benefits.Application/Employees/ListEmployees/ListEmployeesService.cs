@@ -3,16 +3,11 @@ using Microsoft.Extensions.Logging;
 namespace Benefits.Application.Employees;
 
 /// <summary>
-/// Use case: list employees one page at a time, ordered alphabetically by
-/// surname then firstname (email breaks ties so pagination is deterministic).
-/// Reading a page past the last one returns an empty page with correct
-/// metadata rather than an error.
+/// Reads one page at a time, ordered alphabetically by surname then firstname
+/// (email breaks ties so pagination is deterministic). Reading a page past
+/// the last one returns an empty page with correct metadata rather than an
+/// error.
 /// </summary>
-public interface IListEmployeesService
-{
-    Task<ListEmployeesResult> ListEmployeesAsync(ListEmployeesRequest request, CancellationToken cancellationToken = default);
-}
-
 public sealed class ListEmployeesService(IEmployeeRepository repository, ILogger<ListEmployeesService> logger)
     : IListEmployeesService
 {

@@ -3,15 +3,9 @@ using Microsoft.Extensions.Logging;
 namespace Benefits.Application.Employees;
 
 /// <summary>
-/// Use case: permanently delete an employee by their employee number.
 /// Unknown numbers return NotFound rather than pretending to succeed:
 /// clients need to distinguish "removed by this call" from "nothing to remove".
 /// </summary>
-public interface IDeleteEmployeeService
-{
-    Task<DeleteEmployeeResult> DeleteEmployeeAsync(string employeeNo, CancellationToken cancellationToken = default);
-}
-
 public sealed class DeleteEmployeeService(IEmployeeRepository repository, ILogger<DeleteEmployeeService> logger)
     : IDeleteEmployeeService
 {

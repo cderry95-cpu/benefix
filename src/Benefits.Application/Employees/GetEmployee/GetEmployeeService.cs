@@ -3,13 +3,8 @@ using Microsoft.Extensions.Logging;
 namespace Benefits.Application.Employees;
 
 /// <summary>
-/// Use case: look up a single employee by their employee number.
+/// Looks up a single employee by their employee number.
 /// </summary>
-public interface IGetEmployeeService
-{
-    Task<GetEmployeeResult> GetEmployeeAsync(string employeeNo, CancellationToken cancellationToken = default);
-}
-
 public sealed class GetEmployeeService(IEmployeeRepository repository, ILogger<GetEmployeeService> logger)
     : IGetEmployeeService
 {

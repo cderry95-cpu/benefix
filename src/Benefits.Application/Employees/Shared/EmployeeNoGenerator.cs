@@ -1,16 +1,9 @@
 namespace Benefits.Application.Employees;
 
 /// <summary>
-/// Generates employee numbers. The format is documented as a team decision
-/// in AGENTS.md: "EMP-" plus six zero-padded random digits (e.g. "EMP-048291")
-/// — readable and fixed-width, yet deliberately non-sequential so the number
-/// leaks nothing about headcount growth.
+/// Generates random employee numbers in the "EMP-" + six zero-padded digits
+/// format (e.g. "EMP-048291"), tested with a seedable <see cref="Random"/>.
 /// </summary>
-public interface IEmployeeNoGenerator
-{
-    string Generate();
-}
-
 public sealed class EmployeeNoGenerator : IEmployeeNoGenerator
 {
     private readonly Random _random;
