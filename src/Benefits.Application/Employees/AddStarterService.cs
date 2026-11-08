@@ -71,8 +71,8 @@ public sealed class AddStarterService(IEmployeeRepository repository, ILogger<Ad
         {
             EmployeeNo = Guid.NewGuid().ToString(),
             Email = email,
-            Firstname = request.Firstname.Trim(),
-            Surname = request.Surname.Trim(),
+            Firstname = request.Firstname!.Trim(),
+            Surname = request.Surname!.Trim(),
             Title = request.Title,
             Dob = request.Dob,
             Gender = gender,

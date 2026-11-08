@@ -46,6 +46,11 @@ docker build -t benefix-api --secret id=corp-root,src=<path-to-root-ca.pem> .
 
 ## Endpoints
 
+- `GET /api/employees` — lists employees alphabetically by surname, paginated.
+  Query params: `page` (default 1), `pageSize` (default 10, max 100). Response
+  envelope: `{ items, page, pageSize, totalCount }`. A `page` beyond the end
+  returns an empty `items` array with correct metadata; invalid params return
+  a 400 ProblemDetails.
 - `POST /api/employees` — adds a new starter. See `src/Benefits.Api/Benefits.Api.http` for a sample request body.
 
 | Case                          | Status | Response                                   |
@@ -61,6 +66,13 @@ Required fields: `email`, `firstname`, `surname`. All other fields are optional
 (`title`, `dob`, `gender`, `address`). `dob` must not be in the future.
 `gender` accepts the enum value names (case-insensitive) or their spaced
 forms, e.g. `"Male"`, `"prefer not to say"`.
+
+## Development seeding
+
+When running locally (`Development` environment), the API seeds 25 realistic
+employees on startup if the table is empty, so pagination has real data to
+page through. Because the SQLite database is in memory, data resets on every
+restart and the seed runs again; production deployments never seed.
 
 ## Running tests
 

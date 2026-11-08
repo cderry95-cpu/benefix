@@ -146,4 +146,75 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         Assert.Contains("Banana", problem.Detail);
         Assert.Contains("Male, Female, Other, Prefer not to say", problem.Detail);
     }
+
+    [Fact]
+    public async Task Get_List_ReturnsValidPageShape()
+    {
+        var response = await _client.GetAsync("/api/employees?page=1&pageSize=5");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var page = await response.Content.ReadFromJsonAsync<EmployeePage>(ApiJsonOptions);
+        Assert.NotNull(page);
+        Assert.Equal(1, page!.Page);
+        Assert.Equal(5, page.PageSize);
+        Assert.True(page.Items.Count <= 5);
+        Assert.True(page.TotalCount >= page.Items.Count);
+        AssertSortedAlphabetically(page.Items);
+    }
+
+    [Fact]
+    public async Task Get_List_PostedEmployeeIsOrderedAlphabetically()
+    {
+        // A surname deliberately sorting after every other record (including
+        // seeded ones) makes this test independent of seed data and order.
+        var request = ValidRequest() with
+        {
+            Firstname = "Zoe",
+            Surname = "Zzyzx",
+        };
+        var postResponse = await _client.PostAsJsonAsync("/api/employees", request);
+        var posted = await ReadEmployeeAsync(postResponse);
+
+        var response = await _client.GetAsync("/api/employees?pageSize=100");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var page = await response.Content.ReadFromJsonAsync<EmployeePage>(ApiJsonOptions);
+        AssertSortedAlphabetically(page!.Items);
+        Assert.Equal(posted!.EmployeeNo, page.Items[^1].EmployeeNo);
+    }
+
+    [Fact]
+    public async Task Get_List_PastLastPage_ReturnsEmptyItems()
+    {
+        var response = await _client.GetAsync("/api/employees?page=9999&pageSize=10");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var page = await response.Content.ReadFromJsonAsync<EmployeePage>(ApiJsonOptions);
+        Assert.Empty(page!.Items);
+        Assert.Equal(10, page.PageSize);
+    }
+
+    [Theory]
+    [InlineData("page=0&pageSize=10")]
+    [InlineData("page=1&pageSize=0")]
+    [InlineData("page=1&pageSize=101")]
+    public async Task Get_List_InvalidPaginationParams_ReturnsBadRequest(string query)
+    {
+        var response = await _client.GetAsync($"/api/employees?{query}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(ApiJsonOptions);
+        Assert.Equal("Invalid pagination", problem!.Title);
+        Assert.NotNull(problem.Detail);
+    }
+
+    private static void AssertSortedAlphabetically(IReadOnlyList<EmployeeDto> items)
+    {
+        for (var i = 1; i < items.Count; i++)
+        {
+            var previous = (items[i - 1].Surname, items[i - 1].Firstname, items[i - 1].Email);
+            Assert.True(
+                string.CompareOrdinal(previous.Item1 ?? string.Empty, items[i].Surname ?? string.Empty) <= 0);
+        }
+    }
 }
