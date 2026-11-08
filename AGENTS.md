@@ -72,6 +72,24 @@ Conventions:
   or shared mutable state between tests.
 **`dotnet test` passing is the definition of done before any commit.**
 
+## Git pre-commit hooks
+
+A pre-commit hook in `.githooks/pre-commit` runs before every commit:
+
+1. **Secret scanning** — gitleaks over staged changes (install with `brew install gitleaks`
+   or your package manager); a basic regex fallback runs if gitleaks is absent.
+2. **Format verification** — `dotnet format --verify-no-changes` (fix with `dotnet format`).
+3. **Build** — `dotnet build` must succeed.
+
+Enable the hooks after a fresh clone (one time):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+If a check fails, fix the issue and amend or re-stage; do not use `--no-verify`
+unless the reviewer has agreed there is a legitimate reason.
+
 ## Development commands
 
 ```bash

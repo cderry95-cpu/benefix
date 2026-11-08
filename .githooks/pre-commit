@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Benefits API pre-commit hook: secret scanning, format verification, build.
+# Enable after cloning with: git config core.hooksPath .githooks
+set -euo pipefail
+
+echo "==> pre-commit: scanning staged changes for secrets"
+if command -v gitleaks >/dev/null 2>&1; then
+    gitleaks git --pre-commit --staged -v
+else
+    echo "gitleaks not found; falling back to basic pattern scan (install gitleaks for full coverage)" >&2
+    added=$(git diff --cached -U0 --no-color --diff-filter=ACM | grep '^+' | grep -v '^+++' || true)
+    if [ -n "$added" ] && echo "$added" | grep -nIE \
+        'AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}'; then
+        echo "Potential secret found in staged changes. Commit blocked." >&2
+        exit 1
+    fi
+fi
+
+echo "==> pre-commit: verifying formatting (dotnet format --verify-no-changes)"
+dotnet format --verify-no-changes --verbosity quiet
+
+echo "==> pre-commit: building solution"
+dotnet build --nologo --verbosity quiet
+
+echo "==> pre-commit: all checks passed"

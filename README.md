@@ -37,6 +37,19 @@ dotnet run --project src/Benefits.Api
 dotnet test
 ```
 
+## Git hooks
+
+A pre-commit hook checks for leaked secrets (gitleaks), verifies formatting
+(`dotnet format --verify-no-changes`) and builds the solution. Enable it once
+after cloning:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Secret scanning works best with [gitleaks](https://gitleaks.io) installed
+(`brew install gitleaks`); a basic regex fallback runs if it is absent.
+
 ## Feature implementation
 
 The target user story — adding a new starter (`EmployeeNo`, `Title`, `Firstname`,
