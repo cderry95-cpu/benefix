@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ###
 
-PUT {{Benefits.Api_HostAddress}}/api/employees/EMP-123456
+PUT {{Benefits.Api_HostAddress}}/api/employees/123456
 Content-Type: application/json
 
 {

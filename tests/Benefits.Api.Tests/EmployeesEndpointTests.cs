@@ -56,7 +56,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var employee = await ReadEmployeeAsync(response);
         Assert.NotNull(employee);
-        Assert.Matches(@"^EMP-\d{6}$", employee!.EmployeeNo);
+        Assert.Matches(@"^\d{6}$", employee!.EmployeeNo);
         Assert.Equal(request.Email, employee.Email);
         Assert.Equal("Freddie", employee.Firstname);
         Assert.Equal(request.Dob, employee.Dob);
@@ -249,7 +249,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         string unknown;
         do
         {
-            unknown = $"EMP-{Random.Shared.Next(0, 1_000_000):D6}";
+            unknown = $"{Random.Shared.Next(0, 1_000_000):D6}";
         }
         while (existing.Contains(unknown));
 
@@ -329,7 +329,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         string unknown;
         do
         {
-            unknown = $"EMP-{Random.Shared.Next(0, 1_000_000):D6}";
+            unknown = $"{Random.Shared.Next(0, 1_000_000):D6}";
         }
         while (existing.Contains(unknown));
 
@@ -389,7 +389,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
 
         var response = await _client.PutAsJsonAsync($"/api/employees/{posted.EmployeeNo}", new
         {
-            employeeNo = "EMP-999999",
+            employeeNo = "999999",
             firstname = "Shape",
             surname = "Test",
             email = $"{Guid.NewGuid():N}@example.test",
@@ -451,7 +451,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         string unknown;
         do
         {
-            unknown = $"EMP-{Random.Shared.Next(0, 1_000_000):D6}";
+            unknown = $"{Random.Shared.Next(0, 1_000_000):D6}";
         }
         while (existing.Contains(unknown));
 

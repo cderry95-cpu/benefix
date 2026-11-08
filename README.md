@@ -68,7 +68,7 @@ docker build -t benefix-api --secret id=corp-root,src=<path-to-root-ca.pem> .
 | Update targets unknown number | 404    | ProblemDetails ("Employee not found")      |
 | Employee deleted              | 204    | No content                                 |
 | Unknown employee number (GET/DELETE) | 404 | ProblemDetails ("Employee not found") |
-| Starter saved                 | 200    | Saved employee (with `EMP-######` number)   |
+| Starter saved                 | 200    | Saved employee (with 6-digit number)         |
 | Employee looked up by number  | 200    | The employee object                        |
 | Missing `email`/`firstname`/`surname` | 400 | ProblemDetails listing the missing fields |
 | Malformed `email`             | 400    | ProblemDetails                              |
@@ -118,8 +118,8 @@ Secret scanning works best with [gitleaks](https://gitleaks.io) installed
 
 Implements the user story: as an HR Administrator, add a new starter
 (`EmployeeNo`, `Title`, `Firstname`, `Surname`, `DOB`, `Gender`, `Email`,
-`Address`). `EmployeeNo` is `EMP-` plus six random zero-padded digits
-(e.g. `EMP-482913`) — human-readable and unique (existence-check retry
+`Address`). `EmployeeNo` is six random zero-padded digits (e.g. `048291`) —
+human-readable and unique (existence-check retry
 backed by the database primary key), deliberately non-sequential so the
 number leaks nothing about headcount growth. `Email` is unique; uniqueness
 is enforced by a unique index in the in-memory SQLite database and checked

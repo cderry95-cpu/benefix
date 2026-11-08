@@ -72,7 +72,7 @@ public class UpdateEmployeeServiceTests
     [Fact]
     public async Task UpdateEmployee_UnknownNumber_ReturnsNotFound()
     {
-        var result = await CreateService().UpdateEmployeeAsync("EMP-000001", UpdatedRequest());
+        var result = await CreateService().UpdateEmployeeAsync("000001", UpdatedRequest());
 
         Assert.False(result.IsSuccess);
         Assert.Equal(UpdateEmployeeError.NotFound, result.Error);
