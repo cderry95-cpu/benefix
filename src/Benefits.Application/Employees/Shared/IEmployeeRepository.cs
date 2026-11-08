@@ -14,10 +14,11 @@ public interface IEmployeeRepository
     Task<bool> AddAsync(Employee employee, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Returns true if an employee with this employee number already exists.    /// Backs the generator's collision-retry loop; the database primary key
+    /// Returns true if an employee with this employee number already exists.
+    /// Backs the generator's collision-retry loop; the database primary key
     /// on EmployeeNo remains the authoritative guard.
     /// </summary>
-    Task<bool> EmployeeNoExistsAsync(string employeeNo, CancellationToken cancellationToken = default);
+    Task<bool> EmployeeNoExistsAsync(int employeeNo, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Returns one page of employees, alphabetically ordered by surname,
@@ -29,13 +30,13 @@ public interface IEmployeeRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>Returns the employee with this employee number, or null when absent.</summary>
-    Task<Employee?> GetByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default);
+    Task<Employee?> GetByEmployeeNoAsync(int employeeNo, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes the employee with this employee number; returns false if it
     /// does not exist.
     /// </summary>
-    Task<bool> DeleteByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default);
+    Task<bool> DeleteByEmployeeNoAsync(int employeeNo, CancellationToken cancellationToken = default);
 
     /// <summary>Returns the employee with this email, or null when absent.</summary>
     Task<Employee?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);

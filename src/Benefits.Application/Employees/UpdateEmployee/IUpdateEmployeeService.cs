@@ -4,7 +4,7 @@ namespace Benefits.Application.Employees;
 public interface IUpdateEmployeeService
 {
     Task<UpdateEmployeeResult> UpdateEmployeeAsync(
-        string employeeNo,
+        int employeeNo,
         UpdateEmployeeRequest request,
         CancellationToken cancellationToken = default);
 }

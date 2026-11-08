@@ -12,7 +12,7 @@ public class UpdateEmployeeServiceTests
     private UpdateEmployeeService CreateService() =>
         new(_repository, NullLogger<UpdateEmployeeService>.Instance);
 
-    private async Task<string> SaveOneEmployeeAsync(string? email = null)
+    private async Task<int> SaveOneEmployeeAsync(string? email = null)
     {
         var service = new AddStarterService(
             _repository, new EmployeeNoGenerator(), NullLogger<AddStarterService>.Instance);
@@ -72,17 +72,9 @@ public class UpdateEmployeeServiceTests
     [Fact]
     public async Task UpdateEmployee_UnknownNumber_ReturnsNotFound()
     {
-        var result = await CreateService().UpdateEmployeeAsync("000001", UpdatedRequest());
+        var result = await CreateService().UpdateEmployeeAsync(1, UpdatedRequest());
 
         Assert.False(result.IsSuccess);
-        Assert.Equal(UpdateEmployeeError.NotFound, result.Error);
-    }
-
-    [Fact]
-    public async Task UpdateEmployee_WhitespaceNumber_ReturnsNotFound()
-    {
-        var result = await CreateService().UpdateEmployeeAsync("  ", UpdatedRequest());
-
         Assert.Equal(UpdateEmployeeError.NotFound, result.Error);
     }
 

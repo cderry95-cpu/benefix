@@ -7,7 +7,7 @@ using Benefits.Domain;
 /// </summary>
 public sealed record EmployeeDto
 {
-    public required string EmployeeNo { get; init; }
+    public required int EmployeeNo { get; init; }
     public required string Email { get; init; }
     public string? Title { get; init; }
     public string? Firstname { get; init; }

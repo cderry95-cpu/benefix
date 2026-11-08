@@ -9,23 +9,15 @@ namespace Benefits.Application.Employees;
 public sealed class DeleteEmployeeService(IEmployeeRepository repository, ILogger<DeleteEmployeeService> logger)
     : IDeleteEmployeeService
 {
-    public async Task<DeleteEmployeeResult> DeleteEmployeeAsync(string employeeNo, CancellationToken cancellationToken = default)
+    public async Task<DeleteEmployeeResult> DeleteEmployeeAsync(int employeeNo, CancellationToken cancellationToken = default)
     {
-        var normalised = employeeNo.Trim();
-
-        if (string.IsNullOrWhiteSpace(normalised))
+        if (!await repository.DeleteByEmployeeNoAsync(employeeNo, cancellationToken))
         {
-            logger.LogWarning("Employee delete failed: employee number is empty.");
+            logger.LogWarning("Employee delete failed: no employee with employee number {EmployeeNo} exists.", employeeNo);
             return DeleteEmployeeResult.NotFound();
         }
 
-        if (!await repository.DeleteByEmployeeNoAsync(normalised, cancellationToken))
-        {
-            logger.LogWarning("Employee delete failed: no employee with employee number '{EmployeeNo}' exists.", normalised);
-            return DeleteEmployeeResult.NotFound();
-        }
-
-        logger.LogInformation("Employee deleted. EmployeeNo={EmployeeNo}.", normalised);
+        logger.LogInformation("Employee deleted. EmployeeNo={EmployeeNo}.", employeeNo);
 
         return DeleteEmployeeResult.Deleted();
     }

@@ -11,7 +11,7 @@ public class DeleteEmployeeServiceTests
     private DeleteEmployeeService CreateService() =>
         new(_repository, NullLogger<DeleteEmployeeService>.Instance);
 
-    private async Task<string> SaveOneEmployeeAsync(string? email = null)
+    private async Task<int> SaveOneEmployeeAsync(string? email = null)
     {
         var addService = new AddStarterService(
             _repository, new EmployeeNoGenerator(), NullLogger<AddStarterService>.Instance);
@@ -45,19 +45,9 @@ public class DeleteEmployeeServiceTests
     {
         var service = CreateService();
 
-        var result = await service.DeleteEmployeeAsync("000001");
+        var result = await service.DeleteEmployeeAsync(1);
 
         Assert.False(result.IsSuccess);
-        Assert.Equal(DeleteEmployeeError.NotFound, result.Error);
-    }
-
-    [Fact]
-    public async Task DeleteEmployee_Whitespace_ReturnsNotFound()
-    {
-        var service = CreateService();
-
-        var result = await service.DeleteEmployeeAsync("   ");
-
         Assert.Equal(DeleteEmployeeError.NotFound, result.Error);
     }
 

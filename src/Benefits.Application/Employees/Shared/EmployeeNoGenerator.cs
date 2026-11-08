@@ -1,8 +1,8 @@
 namespace Benefits.Application.Employees;
 
 /// <summary>
-/// Generates random employee numbers: six zero-padded digits (e.g. "048291"),
-/// tested with a seedable <see cref="Random"/>.
+/// Generates random employee numbers: an integer of six digits (0–999,999),
+/// testable with a seedable <see cref="Random"/>.
 /// </summary>
 public sealed class EmployeeNoGenerator : IEmployeeNoGenerator
 {
@@ -15,9 +15,8 @@ public sealed class EmployeeNoGenerator : IEmployeeNoGenerator
         _random = random ?? Random.Shared;
     }
 
-    public string Generate()
+    public int Generate()
     {
-        var digits = _random.Next(0, 1_000_000);
-        return $"{digits:D6}";
+        return _random.Next(0, 1_000_000);
     }
 }

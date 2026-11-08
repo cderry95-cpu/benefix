@@ -15,7 +15,7 @@ public class GetEmployeeServiceTests
     /// Adds one real employee through the AddStarterService using the same
     /// repository, ensuring the fake's generated employee numbers exist.
     /// </summary>
-    private async Task<string> SaveOneEmployeeAsync()
+    private async Task<int> SaveOneEmployeeAsync()
     {
         var service = new AddStarterService(_repository, new EmployeeNoGenerator(), NullLogger<AddStarterService>.Instance);
 
@@ -49,20 +49,10 @@ public class GetEmployeeServiceTests
     {
         var service = CreateService();
 
-        var result = await service.GetEmployeeAsync("000001");
+        var result = await service.GetEmployeeAsync(1);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(GetEmployeeError.NotFound, result.Error);
         Assert.Null(result.Employee);
-    }
-
-    [Fact]
-    public async Task GetEmployee_Whitespace_ReturnsNotFound()
-    {
-        var service = CreateService();
-
-        var result = await service.GetEmployeeAsync("   ");
-
-        Assert.Equal(GetEmployeeError.NotFound, result.Error);
     }
 }
