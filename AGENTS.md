@@ -23,12 +23,25 @@ Authentication is not important. How the data is stored is not important
 - `EmployeeNo` must be generated and unique
 - `Email` must be unique
 
+### Additional decisions (2025-11-08)
+
+- `Email`, `Firstname` and `Surname` are required fields; the remaining fields
+  (`Title`, `DOB`, `Gender`, `Address`) are nullable.
+- `EmployeeNo` is a generated GUID, not a sequential number.
+- `Email` must be a validly formatted email address.
+- `DOB` must not be in the future.
+- `Gender` is a domain enum (`Male`, `Female`, `Other`, `PreferNotToSay`).
+  Requests accept the member names (case-insensitive) or spaced forms
+  (e.g. "Prefer not to say"); responses serialize as spaced strings, and an
+  invalid value returns a 400 listing the allowed values
+  (`GenderParser` in Application, wire naming via `TitleCaseEnumNamingPolicy`).
+
 ## Architecture (Clean Architecture)
 
 | Project                         | Responsibility                                                                  |
 | ------------------------------- | ------------------------------------------------------------------------------- |
 | `src/Benefits.Domain`           | Domain entities and rules. No dependencies on other layers.                      |
-| `src/Benefits.Application`      | Use cases / application services (e.g. `IGreetingService`). Depends on Domain only. |
+| `src/Benefits.Application`      | Use cases / application services (e.g. `IAddStarterService`). Depends on Domain only. |
 | `src/Benefits.Infrastructure`   | Persistence and data access. Depends on Application.                             |
 | `src/Benefits.Api`              | ASP.NET Core REST API. Controllers dispatch Application-layer use cases.          |
 | `tests/Benefits.Api.Tests`      | Unit and integration tests (xUnit).                                              |
@@ -38,8 +51,9 @@ The Domain depends on nothing the project. Nothing references `Benefits.Api`
 except the test project (for its `Program` entry point).
 
 - Controllers stay thin: bind request, call an Application use case, map response.
-- Business rules (e.g. uniqueness validation, `EmployeeNo` generation) live in
-  Domain or Application, never in controllers or SQL strings scattered around.
+- Business rules (e.g. uniqueness validation, `EmployeeNo` generation, required
+  fields, date-of-birth sanity checks) live in Domain or Application, never in
+  controllers or SQL strings scattered around.
 
 ## Storage
 

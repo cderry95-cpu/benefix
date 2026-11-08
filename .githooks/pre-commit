@@ -3,6 +3,11 @@
 # Enable after cloning with: git config core.hooksPath .githooks
 set -euo pipefail
 
+# GUI IDEs (JetBrains, VS for Mac, etc.) invoke git without the interactive
+# shell's PATH, so dotnet and brew-managed tools are not found by default.
+# Extend PATH with the common install locations on macOS.
+export PATH="$PATH:/usr/local/share/dotnet:/usr/local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$HOME/.dotnet"
+
 echo "==> pre-commit: scanning staged changes for secrets"
 if command -v gitleaks >/dev/null 2>&1; then
     gitleaks git --pre-commit --staged -v
