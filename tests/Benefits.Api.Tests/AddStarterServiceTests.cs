@@ -215,6 +215,12 @@ public sealed class FakeEmployeeRepository : IEmployeeRepository
         return Task.FromResult(_employeeNos.Contains(employeeNo));
     }
 
+    public Task<Employee?> GetByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default)
+    {
+        var employee = Saved.FirstOrDefault(e => e.EmployeeNo == employeeNo);
+        return Task.FromResult<Employee?>(employee);
+    }
+
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_emails.Contains(email));

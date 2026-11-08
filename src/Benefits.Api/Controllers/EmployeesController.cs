@@ -8,6 +8,7 @@ namespace Benefits.Api.Controllers;
 public class EmployeesController(
     IAddStarterService addStarterService,
     IListEmployeesService listEmployeesService,
+    IGetEmployeeService getEmployeeService,
     ILogger<EmployeesController> logger)
     : ControllerBase
 {
@@ -30,6 +31,27 @@ public class EmployeesController(
             Title = "Invalid pagination",
             Detail = result.Message,
             Status = StatusCodes.Status400BadRequest,
+        });
+    }
+
+    /// <summary>
+    /// Fetches a single employee by their employee number.
+    /// </summary>
+    [HttpGet("{employeeNo}")]
+    public async Task<IActionResult> GetByEmployeeNo(string employeeNo, CancellationToken cancellationToken)
+    {
+        var result = await getEmployeeService.GetEmployeeAsync(employeeNo, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Employee);
+        }
+
+        return NotFound(new ProblemDetails
+        {
+            Title = "Employee not found",
+            Detail = $"No employee with employee number '{employeeNo.Trim()}' was found.",
+            Status = StatusCodes.Status404NotFound,
         });
     }
 

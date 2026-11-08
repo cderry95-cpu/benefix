@@ -51,11 +51,15 @@ docker build -t benefix-api --secret id=corp-root,src=<path-to-root-ca.pem> .
   envelope: `{ items, page, pageSize, totalCount }`. A `page` beyond the end
   returns an empty `items` array with correct metadata; invalid params return
   a 400 ProblemDetails.
+- `GET /api/employees/{employeeNo}` — fetches a single employee by employee
+  number; a 404 ProblemDetails is returned when no employee matches.
 - `POST /api/employees` — adds a new starter. See `src/Benefits.Api/Benefits.Api.http` for a sample request body.
 
 | Case                          | Status | Response                                   |
 | ----------------------------- | ------ | ------------------------------------------ |
-| Starter saved                 | 200    | Saved employee (with GUID `employeeNo`)     |
+| Starter saved                 | 200    | Saved employee (with `EMP-######` number)   |
+| Employee looked up by number  | 200    | The employee object                        |
+| Unknown employee number       | 404    | ProblemDetails ("Employee not found")      |
 | Missing `email`/`firstname`/`surname` | 400 | ProblemDetails listing the missing fields |
 | Malformed `email`             | 400    | ProblemDetails                              |
 | `dob` in the future           | 400    | ProblemDetails                              |

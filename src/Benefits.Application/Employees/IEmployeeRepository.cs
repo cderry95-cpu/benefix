@@ -31,4 +31,7 @@ public interface IEmployeeRepository
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Returns the employee with this employee number, or null when absent.</summary>
+    Task<Employee?> GetByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default);
 }

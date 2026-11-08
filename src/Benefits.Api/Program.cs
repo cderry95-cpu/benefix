@@ -17,6 +17,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAddStarterService, AddStarterService>();
 builder.Services.AddScoped<IListEmployeesService, ListEmployeesService>();
+builder.Services.AddScoped<IGetEmployeeService, GetEmployeeService>();
 builder.Services.AddSingleton<IEmployeeNoGenerator, EmployeeNoGenerator>();
 builder.Services.AddInfrastructure();
 
