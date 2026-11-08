@@ -1,3 +1,4 @@
+using Benefits.Application.Employees;
 using Benefits.Domain;
 using Dapper;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,7 @@ namespace Benefits.Infrastructure;
 /// </summary>
 public sealed class EmployeeDatabaseSeeder(
     EmployeeDatabase database,
+    IEmployeeNoGenerator employeeNoGenerator,
     IHostEnvironment environment,
     ILogger<EmployeeDatabaseSeeder> logger) : IHostedService
 {
@@ -22,7 +24,9 @@ public sealed class EmployeeDatabaseSeeder(
     {
         if (!environment.IsDevelopment())
         {
-            logger.LogDebug("Employee seeding skipped: environment '{Environment}' is not Development.", environment.EnvironmentName);
+            logger.LogInformation(
+                "Employee seeding skipped: production never seeds (environment is '{Environment}').",
+                environment.EnvironmentName);
             return;
         }
 
@@ -40,7 +44,7 @@ public sealed class EmployeeDatabaseSeeder(
         {
             var employee = new Employee
             {
-                EmployeeNo = Guid.NewGuid().ToString(),
+                EmployeeNo = employeeNoGenerator.Generate(),
                 Email = $"{seed.First}.{seed.Last}@example.test".ToLowerInvariant(),
                 Title = seed.Title,
                 Firstname = seed.First,

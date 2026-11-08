@@ -104,6 +104,9 @@ Secret scanning works best with [gitleaks](https://gitleaks.io) installed
 
 Implements the user story: as an HR Administrator, add a new starter
 (`EmployeeNo`, `Title`, `Firstname`, `Surname`, `DOB`, `Gender`, `Email`,
-`Address`). `EmployeeNo` is a generated GUID (not sequential) and `Email`
-is unique; uniqueness is enforced by a unique index in the in-memory SQLite
-database and checked explicitly by the Application layer.
+`Address`). `EmployeeNo` is `EMP-` plus six random zero-padded digits
+(e.g. `EMP-482913`) — human-readable and unique (existence-check retry
+backed by the database primary key), deliberately non-sequential so the
+number leaks nothing about headcount growth. `Email` is unique; uniqueness
+is enforced by a unique index in the in-memory SQLite database and checked
+explicitly by the Application layer.

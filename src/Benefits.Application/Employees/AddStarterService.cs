@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 namespace Benefits.Application.Employees;
 
 /// <summary>
-/// Use case: add a new starter. Generates a GUID <see cref="Employee.EmployeeNo"/>,
-/// validates the email, enforces email uniqueness (checked explicitly and backed
+/// Use case: add a new starter. Generates a unique <see cref="Employee.EmployeeNo"/>,
+/// validates the request, enforces email uniqueness (checked explicitly and backed
 /// by a unique database index) and persists the employee.
 /// </summary>
 public interface IAddStarterService
@@ -13,9 +13,14 @@ public interface IAddStarterService
     Task<AddStarterResult> AddStarterAsync(AddStarterRequest request, CancellationToken cancellationToken = default);
 }
 
-public sealed class AddStarterService(IEmployeeRepository repository, ILogger<AddStarterService> logger)
+public sealed class AddStarterService(
+    IEmployeeRepository repository,
+    IEmployeeNoGenerator employeeNoGenerator,
+    ILogger<AddStarterService> logger)
     : IAddStarterService
 {
+    private const int MaxEmployeeNoAttempts = 3;
+
     public async Task<AddStarterResult> AddStarterAsync(AddStarterRequest request, CancellationToken cancellationToken = default)
     {
         var missingFields = GetMissingRequiredFields(request);
@@ -28,7 +33,7 @@ public sealed class AddStarterService(IEmployeeRepository repository, ILogger<Ad
             return AddStarterResult.Failure(AddStarterError.MissingRequiredFields, message);
         }
 
-        var email = request.Email.Trim();
+        var email = request.Email!.Trim();
 
         if (!IsValidEmail(email))
         {
@@ -60,6 +65,15 @@ public sealed class AddStarterService(IEmployeeRepository repository, ILogger<Ad
             gender = parsedGender;
         }
 
+        var employeeNo = await ReserveEmployeeNoAsync(cancellationToken);
+
+        if (employeeNo is null)
+        {
+            const string message = "Could not generate a unique employee number.";
+            logger.LogError("Starter not saved: {Message}", message);
+            return AddStarterResult.Failure(AddStarterError.EmployeeNoGenerationFailed, message);
+        }
+
         if (await repository.EmailExistsAsync(email, cancellationToken))
         {
             logger.LogWarning("Starter not saved: an employee with email '{Email}' already exists.", email);
@@ -69,7 +83,7 @@ public sealed class AddStarterService(IEmployeeRepository repository, ILogger<Ad
 
         var employee = new Employee
         {
-            EmployeeNo = Guid.NewGuid().ToString(),
+            EmployeeNo = employeeNo,
             Email = email,
             Firstname = request.Firstname!.Trim(),
             Surname = request.Surname!.Trim(),
@@ -93,6 +107,30 @@ public sealed class AddStarterService(IEmployeeRepository repository, ILogger<Ad
             employee.EmployeeNo, employee.Email, employee.Firstname, employee.Surname);
 
         return AddStarterResult.Success(ToDto(employee));
+    }
+
+    /// <summary>
+    /// Reserves a random employee number, retrying on the rare collision
+    /// (expected roughly once per million inserts). Returns null when the
+    /// retry budget is exhausted.
+    /// </summary>
+    private async Task<string?> ReserveEmployeeNoAsync(CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; attempt <= MaxEmployeeNoAttempts; attempt++)
+        {
+            var candidate = employeeNoGenerator.Generate();
+
+            if (!await repository.EmployeeNoExistsAsync(candidate, cancellationToken))
+            {
+                return candidate;
+            }
+
+            logger.LogWarning(
+                "Employee number {EmployeeNo} already exists (generation attempt {Attempt} of {MaxAttempts}).",
+                candidate, attempt, MaxEmployeeNoAttempts);
+        }
+
+        return null;
     }
 
     private static List<string> GetMissingRequiredFields(AddStarterRequest request)

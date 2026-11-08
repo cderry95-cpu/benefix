@@ -7,9 +7,10 @@ namespace Benefits.Api.Tests;
 public class AddStarterServiceTests
 {
     private readonly FakeEmployeeRepository _repository = new();
+    private readonly IEmployeeNoGenerator _employeeNoGenerator = new EmployeeNoGenerator();
 
     private AddStarterService CreateService() =>
-        new(_repository, NullLogger<AddStarterService>.Instance);
+        new(_repository, _employeeNoGenerator, NullLogger<AddStarterService>.Instance);
 
     private static AddStarterRequest ValidRequest() => new()
     {
@@ -39,13 +40,13 @@ public class AddStarterServiceTests
     }
 
     [Fact]
-    public async Task AddStarter_GeneratesGuidEmployeeNo()
+    public async Task AddStarter_GeneratesEmployeeNoInEmpFormat()
     {
         var service = CreateService();
 
         var result = await service.AddStarterAsync(ValidRequest());
 
-        Assert.True(Guid.TryParse(result.Employee!.EmployeeNo, out _));
+        Assert.Matches(@"^EMP-\d{6}$", result.Employee!.EmployeeNo);
     }
 
     [Fact]
@@ -190,15 +191,28 @@ public sealed class FakeEmployeeRepository : IEmployeeRepository
 
     private readonly HashSet<string> _emails = new(StringComparer.OrdinalIgnoreCase);
 
+    private readonly HashSet<string> _employeeNos = new(StringComparer.Ordinal);
+
     public Task<bool> AddAsync(Employee employee, CancellationToken cancellationToken = default)
     {
+        if (!_employeeNos.Add(employee.EmployeeNo))
+        {
+            return Task.FromResult(false);
+        }
+
         if (!_emails.Add(employee.Email))
         {
+            _employeeNos.Remove(employee.EmployeeNo);
             return Task.FromResult(false);
         }
 
         Saved.Add(employee);
         return Task.FromResult(true);
+    }
+
+    public Task<bool> EmployeeNoExistsAsync(string employeeNo, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(_employeeNos.Contains(employeeNo));
     }
 
     public Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)

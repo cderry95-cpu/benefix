@@ -17,6 +17,13 @@ public interface IEmployeeRepository
     Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Returns true if an employee with this employee number already exists.
+    /// Backs the generator's collision-retry loop; the database primary key
+    /// on EmployeeNo remains the authoritative guard.
+    /// </summary>
+    Task<bool> EmployeeNoExistsAsync(string employeeNo, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Returns one page of employees, alphabetically ordered by surname,
     /// firstname, then email, plus the total number of employees.
     /// </summary>

@@ -87,6 +87,9 @@ public class EmployeesController(
                 Detail = result.Message,
                 Status = StatusCodes.Status400BadRequest,
             }),
+            AddStarterError.EmployeeNoGenerationFailed => Problem(
+                "Could not generate a unique employee number. Please retry.",
+                statusCode: StatusCodes.Status500InternalServerError),
             _ => Problem("An unexpected error occurred while saving the starter."),
         };
     }
