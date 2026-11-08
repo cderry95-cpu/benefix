@@ -56,7 +56,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var employee = await ReadEmployeeAsync(response);
         Assert.NotNull(employee);
-        Assert.True(Guid.TryParse(employee!.EmployeeNo, out _));
+        Assert.Matches(@"^EMP-\d{6}$", employee!.EmployeeNo);
         Assert.Equal(request.Email, employee.Email);
         Assert.Equal("Freddie", employee.Firstname);
         Assert.Equal(request.Dob, employee.Dob);

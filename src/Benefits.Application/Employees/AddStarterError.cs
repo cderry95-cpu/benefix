@@ -9,4 +9,5 @@ public enum AddStarterError
     InvalidGender,
     FutureDateOfBirth,
     DuplicateEmail,
+    EmployeeNoGenerationFailed,
 }

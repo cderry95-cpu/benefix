@@ -26,7 +26,7 @@ public class ListEmployeesServiceTests
     {
         for (var i = 0; i < count; i++)
         {
-            var result = await new AddStarterService(_repository, NullLogger<AddStarterService>.Instance)
+            var result = await new AddStarterService(_repository, new EmployeeNoGenerator(), NullLogger<AddStarterService>.Instance)
                 .AddStarterAsync(ValidRequest($"First{i:00}", $"Last{i:00}"));
 
             Assert.True(result.IsSuccess);
