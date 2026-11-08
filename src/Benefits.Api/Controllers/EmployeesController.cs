@@ -39,8 +39,8 @@ public class EmployeesController(
     /// <summary>
     /// Fetches a single employee by their employee number.
     /// </summary>
-    [HttpGet("{employeeNo}")]
-    public async Task<IActionResult> GetByEmployeeNo(string employeeNo, CancellationToken cancellationToken)
+    [HttpGet("{employeeNo:int}")]
+    public async Task<IActionResult> GetByEmployeeNo(int employeeNo, CancellationToken cancellationToken)
     {
         var result = await getEmployeeService.GetEmployeeAsync(employeeNo, cancellationToken);
 
@@ -52,7 +52,7 @@ public class EmployeesController(
         return NotFound(new ProblemDetails
         {
             Title = "Employee not found",
-            Detail = $"No employee with employee number '{employeeNo.Trim()}' was found.",
+            Detail = $"No employee with employee number {employeeNo} was found.",
             Status = StatusCodes.Status404NotFound,
         });
     }
@@ -60,8 +60,8 @@ public class EmployeesController(
     /// <summary>
     /// Permanently deletes an employee by their employee number.
     /// </summary>
-    [HttpDelete("{employeeNo}")]
-    public async Task<IActionResult> DeleteByEmployeeNo(string employeeNo, CancellationToken cancellationToken)
+    [HttpDelete("{employeeNo:int}")]
+    public async Task<IActionResult> DeleteByEmployeeNo(int employeeNo, CancellationToken cancellationToken)
     {
         var result = await deleteEmployeeService.DeleteEmployeeAsync(employeeNo, cancellationToken);
 
@@ -73,7 +73,7 @@ public class EmployeesController(
         return NotFound(new ProblemDetails
         {
             Title = "Employee not found",
-            Detail = $"No employee with employee number '{employeeNo.Trim()}' was found.",
+            Detail = $"No employee with employee number {employeeNo} was found.",
             Status = StatusCodes.Status404NotFound,
         });
     }
@@ -82,8 +82,8 @@ public class EmployeesController(
     /// Updates an existing employee's details by their employee number.
     /// The employee number cannot be changed.
     /// </summary>
-    [HttpPut("{employeeNo}")]
-    public async Task<IActionResult> Update(string employeeNo, UpdateEmployeeRequest? request, CancellationToken cancellationToken)
+    [HttpPut("{employeeNo:int}")]
+    public async Task<IActionResult> Update(int employeeNo, UpdateEmployeeRequest? request, CancellationToken cancellationToken)
     {
         if (request is null)
         {
@@ -108,7 +108,7 @@ public class EmployeesController(
             UpdateEmployeeError.NotFound => NotFound(new ProblemDetails
             {
                 Title = "Employee not found",
-                Detail = $"No employee with employee number '{employeeNo.Trim()}' was found.",
+                Detail = $"No employee with employee number {employeeNo} was found.",
                 Status = StatusCodes.Status404NotFound,
             }),
             UpdateEmployeeError.DuplicateEmail => Conflict(new ProblemDetails

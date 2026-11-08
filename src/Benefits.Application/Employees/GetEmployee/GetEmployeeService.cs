@@ -8,21 +8,13 @@ namespace Benefits.Application.Employees;
 public sealed class GetEmployeeService(IEmployeeRepository repository, ILogger<GetEmployeeService> logger)
     : IGetEmployeeService
 {
-    public async Task<GetEmployeeResult> GetEmployeeAsync(string employeeNo, CancellationToken cancellationToken = default)
+    public async Task<GetEmployeeResult> GetEmployeeAsync(int employeeNo, CancellationToken cancellationToken = default)
     {
-        var normalised = employeeNo.Trim();
-
-        if (string.IsNullOrWhiteSpace(normalised))
-        {
-            logger.LogWarning("Employee lookup failed: employee number is empty.");
-            return GetEmployeeResult.NotFound();
-        }
-
-        var employee = await repository.GetByEmployeeNoAsync(normalised, cancellationToken);
+        var employee = await repository.GetByEmployeeNoAsync(employeeNo, cancellationToken);
 
         if (employee is null)
         {
-            logger.LogWarning("Employee lookup failed: no employee with employee number '{EmployeeNo}' exists.", normalised);
+            logger.LogWarning("Employee lookup failed: no employee with employee number {EmployeeNo} exists.", employeeNo);
             return GetEmployeeResult.NotFound();
         }
 

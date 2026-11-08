@@ -46,7 +46,7 @@ public class AddStarterServiceTests
 
         var result = await service.AddStarterAsync(ValidRequest());
 
-        Assert.Matches(@"^\d{6}$", result.Employee!.EmployeeNo);
+        Assert.InRange(result.Employee!.EmployeeNo, 0, 999_999);
     }
 
     [Fact]
@@ -191,7 +191,7 @@ public sealed class FakeEmployeeRepository : IEmployeeRepository
 
     private readonly HashSet<string> _emails = new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly HashSet<string> _employeeNos = new(StringComparer.Ordinal);
+    private readonly HashSet<int> _employeeNos = [];
 
     public Task<bool> AddAsync(Employee employee, CancellationToken cancellationToken = default)
     {
@@ -210,18 +210,18 @@ public sealed class FakeEmployeeRepository : IEmployeeRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> EmployeeNoExistsAsync(string employeeNo, CancellationToken cancellationToken = default)
+    public Task<bool> EmployeeNoExistsAsync(int employeeNo, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_employeeNos.Contains(employeeNo));
     }
 
-    public Task<Employee?> GetByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default)
+    public Task<Employee?> GetByEmployeeNoAsync(int employeeNo, CancellationToken cancellationToken = default)
     {
         var employee = Saved.FirstOrDefault(e => e.EmployeeNo == employeeNo);
         return Task.FromResult<Employee?>(employee);
     }
 
-    public Task<bool> DeleteByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default)
+    public Task<bool> DeleteByEmployeeNoAsync(int employeeNo, CancellationToken cancellationToken = default)
     {
         var employee = Saved.FirstOrDefault(e => e.EmployeeNo == employeeNo);
 

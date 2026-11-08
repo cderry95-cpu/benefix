@@ -28,7 +28,7 @@ public sealed record EmployeeFields(
     string? Title,
     string? Address)
 {
-    public Domain.Employee ToEmployee(string employeeNo) => new()
+    public Domain.Employee ToEmployee(int employeeNo) => new()
     {
         EmployeeNo = employeeNo,
         Email = Email,

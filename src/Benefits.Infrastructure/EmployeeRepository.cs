@@ -59,7 +59,7 @@ public sealed class EmployeeRepository(EmployeeDatabase database) : IEmployeeRep
         return (items, totalCount);
     }
 
-    public async Task<Employee?> GetByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default)
+    public async Task<Employee?> GetByEmployeeNoAsync(int employeeNo, CancellationToken cancellationToken = default)
     {
         return await database.Connection.QuerySingleOrDefaultAsync<Employee>(new CommandDefinition(
             """
@@ -71,7 +71,7 @@ public sealed class EmployeeRepository(EmployeeDatabase database) : IEmployeeRep
             cancellationToken: cancellationToken));
     }
 
-    public async Task<bool> DeleteByEmployeeNoAsync(string employeeNo, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteByEmployeeNoAsync(int employeeNo, CancellationToken cancellationToken = default)
     {
         var rows = await database.Connection.ExecuteAsync(new CommandDefinition(
             "DELETE FROM Employees WHERE EmployeeNo = @EmployeeNo",
@@ -130,7 +130,7 @@ public sealed class EmployeeRepository(EmployeeDatabase database) : IEmployeeRep
         }
     }
 
-    public async Task<bool> EmployeeNoExistsAsync(string employeeNo, CancellationToken cancellationToken = default)
+    public async Task<bool> EmployeeNoExistsAsync(int employeeNo, CancellationToken cancellationToken = default)
     {
         var existing = await database.Connection.ExecuteScalarAsync<object?>(new CommandDefinition(
             "SELECT 1 FROM Employees WHERE EmployeeNo = @EmployeeNo LIMIT 1",

@@ -49,7 +49,7 @@ public sealed class AddStarterService(
             return AddStarterResult.Failure(AddStarterError.DuplicateEmail, duplicateMessage);
         }
 
-        var employee = fields.ToEmployee(employeeNo);
+        var employee = fields.ToEmployee(employeeNo!.Value);
 
         if (!await repository.AddAsync(employee, cancellationToken))
         {
@@ -72,7 +72,7 @@ public sealed class AddStarterService(
     /// (expected roughly once per million inserts). Returns null when the
     /// retry budget is exhausted.
     /// </summary>
-    private async Task<string?> ReserveEmployeeNoAsync(CancellationToken cancellationToken)
+    private async Task<int?> ReserveEmployeeNoAsync(CancellationToken cancellationToken)
     {
         for (var attempt = 1; attempt <= MaxEmployeeNoAttempts; attempt++)
         {

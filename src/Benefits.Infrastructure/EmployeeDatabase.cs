@@ -26,7 +26,7 @@ public sealed class EmployeeDatabase : IDisposable
         using var command = _connection.CreateCommand();
         command.CommandText = """
             CREATE TABLE IF NOT EXISTS Employees (
-                EmployeeNo TEXT NOT NULL PRIMARY KEY,
+                EmployeeNo INTEGER NOT NULL PRIMARY KEY,
                 Title      TEXT,
                 Firstname  TEXT,
                 Surname    TEXT,

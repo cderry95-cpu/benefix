@@ -6,13 +6,13 @@ namespace Benefits.Api.Tests;
 public class EmployeeNoGeneratorTests
 {
     [Fact]
-    public void Generate_MatchesEmpFormat()
+    public void Generate_ReturnsSixDigitInteger()
     {
         var generator = new EmployeeNoGenerator();
 
         var employeeNo = generator.Generate();
 
-        Assert.Matches(@"^\d{6}$", employeeNo);
+        Assert.InRange(employeeNo, 0, 999_999);
     }
 
     [Fact]

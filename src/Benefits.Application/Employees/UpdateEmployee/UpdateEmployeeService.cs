@@ -13,30 +13,22 @@ public sealed class UpdateEmployeeService(IEmployeeRepository repository, ILogge
     : IUpdateEmployeeService
 {
     public async Task<UpdateEmployeeResult> UpdateEmployeeAsync(
-        string employeeNo,
+        int employeeNo,
         UpdateEmployeeRequest request,
         CancellationToken cancellationToken = default)
     {
-        var normalised = employeeNo.Trim();
-
-        if (string.IsNullOrWhiteSpace(normalised))
-        {
-            logger.LogWarning("Employee update failed: employee number is empty.");
-            return UpdateEmployeeResult.Failure(UpdateEmployeeError.NotFound);
-        }
-
-        var existing = await repository.GetByEmployeeNoAsync(normalised, cancellationToken);
+        var existing = await repository.GetByEmployeeNoAsync(employeeNo, cancellationToken);
 
         if (existing is null)
         {
-            logger.LogWarning("Employee update failed: no employee with employee number '{EmployeeNo}' exists.", normalised);
+            logger.LogWarning("Employee update failed: no employee with employee number {EmployeeNo} exists.", employeeNo);
             return UpdateEmployeeResult.Failure(UpdateEmployeeError.NotFound);
         }
 
         var (fields, failure, message) = EmployeeRequestValidation.Validate(
             request.Email, request.Firstname, request.Surname,
             request.Gender, request.Dob, request.Title, request.Address,
-            logContext: $"Employee '{normalised}' update", logger: logger);
+            logContext: $"Employee {employeeNo} update", logger: logger);
 
         if (failure is not EmployeeValidationFailure.None)
         {
@@ -45,20 +37,20 @@ public sealed class UpdateEmployeeService(IEmployeeRepository repository, ILogge
 
         var otherWithEmail = await repository.GetByEmailAsync(fields!.Email, cancellationToken);
 
-        if (otherWithEmail is not null && otherWithEmail.EmployeeNo != normalised)
+        if (otherWithEmail is not null && otherWithEmail.EmployeeNo != employeeNo)
         {
             var duplicateMessage = $"An employee with email '{fields.Email}' already exists.";
-            logger.LogWarning("Employee '{EmployeeNo}' update rejected: {Message}", normalised, duplicateMessage);
+            logger.LogWarning("Employee {EmployeeNo} update rejected: {Message}", employeeNo, duplicateMessage);
             return UpdateEmployeeResult.Failure(UpdateEmployeeError.DuplicateEmail, duplicateMessage);
         }
 
-        var updated = fields.ToEmployee(normalised);
+        var updated = fields.ToEmployee(employeeNo);
 
         if (!await repository.UpdateAsync(updated, cancellationToken))
         {
             logger.LogWarning(
-                "Employee '{EmployeeNo}' update rejected: the employee no longer exists.",
-                normalised);
+                "Employee {EmployeeNo} update rejected: the employee no longer exists.",
+                employeeNo);
             return UpdateEmployeeResult.Failure(UpdateEmployeeError.NotFound);
         }
 

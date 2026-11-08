@@ -56,7 +56,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var employee = await ReadEmployeeAsync(response);
         Assert.NotNull(employee);
-        Assert.Matches(@"^\d{6}$", employee!.EmployeeNo);
+        Assert.InRange(employee!.EmployeeNo, 0, 999_999);
         Assert.Equal(request.Email, employee.Email);
         Assert.Equal("Freddie", employee.Firstname);
         Assert.Equal(request.Dob, employee.Dob);
@@ -246,10 +246,10 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         var existing = (await _client.GetFromJsonAsync<EmployeePage>("/api/employees?pageSize=100", ApiJsonOptions))!
             .Items.Select(e => e.EmployeeNo).ToHashSet();
 
-        string unknown;
+        int unknown;
         do
         {
-            unknown = $"{Random.Shared.Next(0, 1_000_000):D6}";
+            unknown = Random.Shared.Next(0, 1_000_000);
         }
         while (existing.Contains(unknown));
 
@@ -258,7 +258,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(ApiJsonOptions);
         Assert.Equal("Employee not found", problem!.Title);
-        Assert.Contains(unknown, problem.Detail);
+        Assert.Contains(unknown.ToString(), problem.Detail);
     }
 
     /// <summary>
@@ -326,10 +326,10 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         var existing = (await _client.GetFromJsonAsync<EmployeePage>("/api/employees?pageSize=100", ApiJsonOptions))!
             .Items.Select(e => e.EmployeeNo).ToHashSet();
 
-        string unknown;
+        int unknown;
         do
         {
-            unknown = $"{Random.Shared.Next(0, 1_000_000):D6}";
+            unknown = Random.Shared.Next(0, 1_000_000);
         }
         while (existing.Contains(unknown));
 
@@ -389,7 +389,7 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
 
         var response = await _client.PutAsJsonAsync($"/api/employees/{posted.EmployeeNo}", new
         {
-            employeeNo = "999999",
+            employeeNo = 999999,
             firstname = "Shape",
             surname = "Test",
             email = $"{Guid.NewGuid():N}@example.test",
@@ -448,10 +448,10 @@ public class EmployeesEndpointTests(WebApplicationFactory<Program> factory)
         var existing = (await _client.GetFromJsonAsync<EmployeePage>("/api/employees?pageSize=100", ApiJsonOptions))!
             .Items.Select(e => e.EmployeeNo).ToHashSet();
 
-        string unknown;
+        int unknown;
         do
         {
-            unknown = $"{Random.Shared.Next(0, 1_000_000):D6}";
+            unknown = Random.Shared.Next(0, 1_000_000);
         }
         while (existing.Contains(unknown));
 
