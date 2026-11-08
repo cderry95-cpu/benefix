@@ -5,16 +5,10 @@ using Microsoft.Extensions.Logging;
 namespace Benefits.Application.Employees;
 
 /// <summary>
-/// Use case: add a new starter. Generates a unique <see cref="Employee.EmployeeNo"/>,
-/// validates the request via shared employee validation, enforces email
-/// uniqueness (checked explicitly and backed by a unique database index) and
-/// persists the employee.
+/// Generates a unique <see cref="Employee.EmployeeNo"/>, validates the request
+/// via shared employee validation, enforces email uniqueness (checked
+/// explicitly and backed by a unique database index) and persists the employee.
 /// </summary>
-public interface IAddStarterService
-{
-    Task<AddStarterResult> AddStarterAsync(AddStarterRequest request, CancellationToken cancellationToken = default);
-}
-
 public sealed class AddStarterService(
     IEmployeeRepository repository,
     IEmployeeNoGenerator employeeNoGenerator,

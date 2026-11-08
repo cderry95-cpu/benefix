@@ -4,20 +4,11 @@ using Microsoft.Extensions.Logging;
 namespace Benefits.Application.Employees;
 
 /// <summary>
-/// Use case: update an existing employee's editable fields (everything except
-/// <see cref="Domain.Employee.EmployeeNo"/>, which identifies the resource and
-/// cannot be changed). Validation rules match adding a starter via the shared
-/// request validation, and email uniqueness applies but never to the
-/// employee's own number.
+/// Validation rules match adding a starter via the shared request validation,
+/// and email uniqueness applies but never to the employee's own number. The
+/// employee number is captured from the route, never from the request, so it
+/// is the one field an update cannot change.
 /// </summary>
-public interface IUpdateEmployeeService
-{
-    Task<UpdateEmployeeResult> UpdateEmployeeAsync(
-        string employeeNo,
-        UpdateEmployeeRequest request,
-        CancellationToken cancellationToken = default);
-}
-
 public sealed class UpdateEmployeeService(IEmployeeRepository repository, ILogger<UpdateEmployeeService> logger)
     : IUpdateEmployeeService
 {
