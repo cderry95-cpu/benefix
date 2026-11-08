@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "dotnet-clean-architecture": {
+      "source": "ronnythedev/dotnet-clean-architecture-skills",
+      "sourceType": "github",
+      "skillPath": "skills/01-dotnet-clean-architecture/SKILL.md",
+      "computedHash": "2c3ddcad1c8648694e9456e5f929606d5b5499470e6e91cf9add8f5e0e9c5ea3"
+    }
+  }
+}
