@@ -18,3 +18,18 @@ Content-Type: application/json
 }
 
 ###
+
+PUT {{Benefits.Api_HostAddress}}/api/employees/EMP-123456
+Content-Type: application/json
+
+{
+  "title": "Dr",
+  "firstname": "Jimi",
+  "surname": "Hendrix",
+  "dob": "1988-04-13",
+  "gender": "Prefer not to say",
+  "email": "jimi.hendrix@example.com",
+  "address": "12 Electric Ladyland, London"
+}
+
+###

@@ -1,6 +1,6 @@
 using Benefits.Domain;
 
-namespace Benefits.Application.Employees;
+namespace Benefits.Application.Helpers;
 
 /// <summary>
 /// Parses the gender values clients send on the wire. Accepts the domain enum
