@@ -35,6 +35,12 @@ Authentication is not important. How the data is stored is not important
   (e.g. "Prefer not to say"); responses serialize as spaced strings, and an
   invalid value returns a 400 listing the allowed values
   (`GenderParser` in Application, wire naming via `TitleCaseEnumNamingPolicy`).
+- `GET /api/employees` lists employees alphabetically by surname with offset
+  pagination (`page` default 1, `pageSize` default 10, max 100) and an
+  `{ items, page, pageSize, totalCount }` envelope.
+- In Development the API seeds 25 employees on startup when the table is
+  empty (`EmployeeDatabaseSeeder`); production never seeds. The in-memory
+  database resets per process, so dev restarts re-seed.
 
 ## Architecture (Clean Architecture)
 

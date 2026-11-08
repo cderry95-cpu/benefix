@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<EmployeeDatabase>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddHostedService<EmployeeDatabaseSeeder>();
         return services;
     }
 }

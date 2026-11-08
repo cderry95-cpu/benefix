@@ -15,4 +15,13 @@ public interface IEmployeeRepository
 
     /// <summary>Returns true if an employee with this email already exists.</summary>
     Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns one page of employees, alphabetically ordered by surname,
+    /// firstname, then email, plus the total number of employees.
+    /// </summary>
+    Task<(IReadOnlyList<Employee> Items, int TotalCount)> ListAsync(
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }

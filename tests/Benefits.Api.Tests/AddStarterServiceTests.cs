@@ -205,4 +205,20 @@ public sealed class FakeEmployeeRepository : IEmployeeRepository
     {
         return Task.FromResult(_emails.Contains(email));
     }
+
+    public Task<(IReadOnlyList<Employee> Items, int TotalCount)> ListAsync(
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var items = Saved
+            .OrderBy(e => e.Surname, StringComparer.Ordinal)
+            .ThenBy(e => e.Firstname, StringComparer.Ordinal)
+            .ThenBy(e => e.Email, StringComparer.Ordinal)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return Task.FromResult(((IReadOnlyList<Employee>)items, Saved.Count));
+    }
 }
